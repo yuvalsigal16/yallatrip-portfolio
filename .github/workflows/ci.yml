@@ -1,0 +1,31 @@
+# Runs on every push and pull request: types, logic tests, database tests, and a production build.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      # use `npm ci` (and `cache: npm` above) once package-lock.json is committed
+      - run: npm install --no-audit --no-fund
+      - name: Types
+        run: npm run typecheck
+      - name: Logic tests
+        run: npm test
+      - name: Database tests (throwaway PostgreSQL on the runner)
+        run: npm run test:db
+      - name: Build
+        run: npm run build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: https://example.supabase.co
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ci-placeholder
+          NEXT_TELEMETRY_DISABLED: '1'

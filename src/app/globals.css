@@ -1,0 +1,138 @@
+@import "tailwindcss";
+
+/* Design tokens from the Phase 2 design system */
+@theme {
+  /* Sky & water palette (owner request, 2026-09-25). Token names kept from Phase 2:
+     "terracotta" is now the brand blue, "sea" the light sky blue; "danger" is for errors. */
+  --color-sand: #F3F8FC;
+  --color-sand-2: #E6F1F9;
+  --color-line: #D3E3EF;
+  --color-ink: #0C2D4A;
+  --color-ink-2: #3E5A76;
+  --color-muted: #6B8299;
+  --color-terracotta: #1B73C9;
+  --color-terracotta-tint: #E2EFFB;
+  --color-sea: #0B8FB8;
+  --color-sea-tint: #DDF3FA;
+  --color-danger: #C2481F;
+  --color-danger-tint: #FBE9E1;
+
+  --font-sans: var(--font-heebo), system-ui, sans-serif;
+  --font-display: var(--font-heebo), system-ui, sans-serif;
+}
+
+html, body {
+  background: var(--color-sand);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+}
+
+/* ---------------------------------------------------------------------------
+   App skin (owner request, 2026-09-27): every page except the landing page.
+   Pages opt in by rendering an element with class "app-skin" (the headers,
+   the sign-in frame, onboarding, shared trips). The landing page has none.
+   --------------------------------------------------------------------------- */
+body:has(.app-skin) {
+  background:
+    radial-gradient(1100px 520px at 100% -8%, #D3E8FA 0%, transparent 60%),
+    radial-gradient(900px 480px at -10% 12%, #DAF1FA 0%, transparent 55%),
+    linear-gradient(180deg, #F5F9FD 0%, #EDF4FB 100%);
+  background-attachment: fixed;
+}
+
+/* Cards float on soft blue shadows instead of sitting on flat borders. */
+body:has(.app-skin) :is(.rounded-2xl, .rounded-3xl).bg-white.border-line {
+  border-color: #E2ECF5;
+  box-shadow: 0 1px 2px rgba(12, 45, 74, .05), 0 14px 34px -16px rgba(12, 45, 74, .22);
+}
+body:has(.app-skin) a:is(.rounded-2xl, .rounded-3xl).bg-white.border-line:hover {
+  box-shadow: 0 2px 4px rgba(12, 45, 74, .06), 0 26px 48px -18px rgba(12, 45, 74, .38);
+}
+body:has(.app-skin) .border-dashed.border-line {
+  border-color: #B9D4EA;
+  background: rgba(255, 255, 255, .6);
+}
+
+/* Fields: a clear blue focus ring. */
+body:has(.app-skin) :is(input:not([type=checkbox]):not([type=radio]):not([type=file]), select, textarea):focus {
+  border-color: var(--color-terracotta);
+  box-shadow: 0 0 0 4px rgba(27, 115, 201, .14);
+  outline: none;
+}
+body:has(.app-skin) input:is([type=checkbox], [type=radio]) { accent-color: var(--color-terracotta); }
+
+/* Section titles get a short gradient underline. */
+body:has(.app-skin) main h2.font-display.text-3xl::after {
+  content: '';
+  display: block;
+  width: 44px;
+  height: 4px;
+  margin-top: 8px;
+  border-radius: 99px;
+  background: linear-gradient(90deg, #35A7E0, #1B73C9);
+}
+
+/* Content rises in gently as the page opens. */
+@keyframes gt-rise {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  body:has(.app-skin) main > * { animation: gt-rise .5s cubic-bezier(.2, .7, .2, 1) both; }
+  body:has(.app-skin) main > :nth-child(2) { animation-delay: .06s; }
+  body:has(.app-skin) main > :nth-child(3) { animation-delay: .12s; }
+  body:has(.app-skin) main > :nth-child(n+4) { animation-delay: .18s; }
+  .gt-hero-in { animation: gt-rise .6s cubic-bezier(.2, .7, .2, 1) both; }
+}
+
+/* Phones: form fields at 16px, so iPhone Safari doesn't zoom in when one is tapped */
+@media (max-width: 1023px) {
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+  select,
+  textarea { font-size: 16px !important; }
+}
+
+/* iPhone Safari gives date/time fields a fixed natural width, so two side by side overlapped:
+   let them shrink to their box like any other field. */
+input[type="date"], input[type="time"] {
+  -webkit-appearance: none;
+  appearance: none;
+  display: block;
+  min-width: 0;
+  max-width: 100%;
+}
+input[type="date"]::-webkit-date-and-time-value, input[type="time"]::-webkit-date-and-time-value { text-align: start; }
+
+/* Keyboard users see where they are (a tap or click shows nothing new). */
+:is(a, button, summary, [role=button], [tabindex]):focus-visible {
+  outline: 3px solid #1B73C9;
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* Date fields show their date in the middle (iPhone draws the value in its own box, so it is centred too). */
+input.date-center { text-align: center; }
+input.date-center::-webkit-date-and-time-value { text-align: center; margin-inline: auto; }
+
+/* On a phone, iPhone zooms the page in when a field with text smaller than 16px is tapped. Fields stay at 16px+ there. */
+@media (max-width: 767px) {
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]), select, textarea { font-size: max(1rem, 1em); }
+}
+
+/* On a computer the browser draws a calendar icon at the end of a date field; the same space at the start
+   keeps the date itself in the middle of the field. */
+@media (min-width: 768px) {
+  input.date-center { padding-left: 34px; padding-right: 10px; }
+  input.date-center::-webkit-datetime-edit { flex: 0 0 auto; margin-inline: auto; }
+}
+
+/* "תוכניות ומחירים": the plans rise in one after another, and their ticks pop in. Light: transform and opacity only. */
+@keyframes gt-pop {
+  0% { opacity: 0; transform: scale(.4); }
+  70% { transform: scale(1.15); }
+  100% { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .gt-plan { animation: gt-rise .6s cubic-bezier(.2, .7, .2, 1) both; }
+  .gt-tick { animation: gt-pop .45s cubic-bezier(.2, .7, .2, 1) both; }
+}
